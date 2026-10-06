@@ -1,0 +1,10 @@
+# Local / generated
+.venv/
+**/.venv/
+.env
+**/.env
+.DS_Store
+**/.DS_Store
+
+# Specs / agent notes — keep local only
+docs/
