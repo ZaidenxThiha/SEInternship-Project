@@ -28,12 +28,7 @@ export function AppLayout() {
     <div className="min-h-screen bg-[var(--color-background)]">
       <header className="border-b border-[var(--color-border)] bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary)]">
-              Week 2 Full-Stack Demo
-            </p>
-            <h1 className="text-lg font-semibold">React + Week 1 API</h1>
-          </div>
+          <h1 className="text-lg font-semibold">Demo</h1>
 
           <div className="flex flex-wrap items-center gap-3">
             {user && (
@@ -42,10 +37,12 @@ export function AppLayout() {
                 <Badge variant={user.role === 'ADMIN' ? 'default' : 'secondary'}>{user.role}</Badge>
               </div>
             )}
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              <LogOut className="h-4 w-4" />
-              Logout
-            </Button>
+            {user ? (
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                <LogOut className="h-4 w-4" />
+                Logout
+              </Button>
+            ) : null}
           </div>
         </div>
       </header>

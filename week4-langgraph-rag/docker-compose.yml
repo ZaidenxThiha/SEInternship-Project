@@ -1,0 +1,21 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: week4-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: week4_rag
+    ports:
+      - '5435:5432'
+    volumes:
+      - week4_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d week4_rag']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  week4_pgdata:

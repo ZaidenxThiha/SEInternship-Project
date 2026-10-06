@@ -15,10 +15,13 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
+        <Route element={<AppLayout />}>
+          <Route index element={<Navigate to="/chat" replace />} />
+          <Route path="/chat" element={<ChatPage />} />
+        </Route>
+
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
-            <Route index element={<Navigate to="/chat" replace />} />
-            <Route path="/chat" element={<ChatPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route element={<AdminRoute />}>
               <Route path="/users" element={<UsersPage />} />

@@ -2,7 +2,7 @@
 
 Internship Phase 1 / Week 3 deliverable: a Python RAG demo that reads a text file, chunks it, embeds vectors into **PostgreSQL + pgvector**, retrieves top matches, and answers questions in an interactive REPL.
 
-OpenAI is used when `OPENAI_API_KEY` is set; otherwise the demo falls back to **Ollama**.
+Default provider is **Qwen** on a VPS (OpenAI-compatible). Set `LLM_PROVIDER` / keys in `.env`, or use the **internship-dashboard → Settings** panel (shared with weeks 2 and 4). Also supported: **Gemini** (OpenAI-compatible Google API), **OpenAI**, and **Ollama**. Switching embedding models requires a re-ingest.
 
 ## Stack
 
@@ -90,10 +90,14 @@ week3-rag-demo/
 | Command   | Action                                      |
 |-----------|---------------------------------------------|
 | (text)    | Ask a question against the knowledge base   |
-| `/ingest` | Re-load `data/sample.txt` into pgvector     |
+| `/ingest` | Re-load every `.txt` / `.md` in `data/` into pgvector |
+| `/clear` | Delete **all** chunks from pgvector |
+| `/clear wata_software.txt` | Delete chunks for one source file only |
 | `/stats`  | Show stored chunk count                     |
 | `/help`   | Show help                                   |
 | `/quit`   | Exit                                        |
+
+Put new docs (e.g. `data/wata_software.txt`) in `data/`, then run `/ingest` (or dashboard **Ingest data/**) before asking.
 
 ## Learning checklist (Week 3)
 

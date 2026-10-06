@@ -11,3 +11,7 @@ export function formatDate(value: string) {
     timeStyle: 'short',
   }).format(new Date(value));
 }
+
+export function formatTime(value: string) {
+  return new Intl.DateTimeFormat(undefined, { timeStyle: 'short' }).format(new Date(value));
+}

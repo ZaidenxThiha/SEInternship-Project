@@ -49,6 +49,27 @@ class RagPipeline:
             embeddings=vectors,
         )
 
+    def documents(self) -> list[Path]:
+        suffixes = {".txt", ".md"}
+        if not self.settings.data_dir.is_dir():
+            return []
+        return sorted(
+            p for p in self.settings.data_dir.iterdir() if p.suffix.lower() in suffixes
+        )
+
+    def ingest_all(self) -> dict[str, int]:
+        stored: dict[str, int] = {}
+        for path in self.documents():
+            stored[path.name] = self.ingest_file(path)
+        return stored
+
+    def clear(self, source: str | None = None) -> int:
+        if source:
+            before = self.store.count()
+            self.store.clear_source(source)
+            return max(0, before - self.store.count())
+        return self.store.clear_all()
+
     def ask(self, question: str) -> RagAnswer:
         query_vec = self.embeddings.embed_one(question)
         sources = self.store.similarity_search(query_vec, self.settings.top_k)

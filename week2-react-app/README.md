@@ -1,6 +1,6 @@
 # Week 2 — React Full-Stack Demo
 
-Internship Phase 1 / Week 2 deliverable: a React frontend with TailwindCSS, shadcn-style UI components, Zustand auth state, protected routing, a static chat UI, and CRUD screens connected to the Week 1 user API.
+Internship Phase 1 / Week 2 deliverable: a React frontend with TailwindCSS, shadcn-style UI components, Zustand auth state, protected routing, a live chat UI backed by self-hosted **Qwen** (OpenAI-compatible API on a VPS), and CRUD screens connected to the Week 1 user API.
 
 ## Stack
 
@@ -17,7 +17,7 @@ Internship Phase 1 / Week 2 deliverable: a React frontend with TailwindCSS, shad
 | Feature | Route | Access |
 |---------|-------|--------|
 | Login / Register | `/login`, `/register` | Public |
-| Static chat UI | `/chat` | Authenticated |
+| Live Qwen chat | `/chat` | Authenticated |
 | Profile CRUD | `/profile` | Authenticated |
 | User list CRUD | `/users` | Admin only |
 
@@ -51,18 +51,30 @@ docker compose up --build
 
 ```bash
 cp .env.example .env
+# Set QWEN_API_KEY (and optionally QWEN_BASE_URL / VITE_QWEN_CHAT_MODEL)
 npm install
 npm run dev
 ```
 
 - App: http://localhost:5173
 - Vite dev proxy forwards `/api` → `http://localhost:3000`
+- Chat calls `/qwen/v1/chat/completions`; Vite injects `Authorization: Bearer $QWEN_API_KEY` (key never goes to the browser)
+
+### LLM env (or use the internship dashboard Settings)
+
+| Variable | Purpose |
+|----------|---------|
+| `VITE_LLM_PROVIDER` | `qwen` \| `openai` \| `gemini` (browser chat) |
+| `QWEN_*` / `OPENAI_*` / `GEMINI_*` | Server-side keys + URLs for Vite proxies (`/qwen`, `/openai`, `/gemini`) |
+| `VITE_*_CHAT_MODEL` | Client-safe model names only (never put API keys under `VITE_`) |
+
+Prefer configuring these once in **internship-dashboard → Settings** (writes week2/3/4 `.env`). After changing provider or chat key/URL/model, **Stop + Start Week 2** so Vite reloads the proxy.
 
 ## Demo flow
 
 1. Open http://localhost:5173/login
 2. Sign in as admin (`admin@example.com` / `Admin123!`)
-3. **Chat UI** — send sample messages (local replies, no AI yet)
+3. **Chat UI** — ask a question; replies come from `qwen3-chat` (or your configured model) on the VPS
 4. **Users (Admin)** — list, create, edit role, delete users
 5. **My Profile** — view/update your own account
 6. Register a normal user and confirm `/users` is hidden (role-based routing)

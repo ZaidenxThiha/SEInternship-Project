@@ -19,28 +19,32 @@ def print_banner(pipeline: RagPipeline) -> None:
     print(f"Chat     : {pipeline.chat.model_name}")
     print(f"Embed    : {pipeline.embeddings.model_name}")
     print(f"Database : {settings.database_url}")
-    print("Commands : /ingest  /stats  /help  /quit")
+    print("Commands : /ingest  /clear  /stats  /help  /quit")
     print("=" * 60)
 
 
 def run_ingest(pipeline: RagPipeline) -> None:
-    path = pipeline.settings.sample_doc
-    if not path.exists():
-        print(f"Sample document not found: {path}")
+    docs = pipeline.documents()
+    if not docs:
+        print(f"No .txt/.md files found in {pipeline.settings.data_dir}")
         return
-    print(f"Ingesting {path} ...")
-    count = pipeline.ingest_file(path)
-    print(f"Stored {count} chunks from '{path.name}'.")
+    print(f"Ingesting {len(docs)} file(s) from {pipeline.settings.data_dir} ...")
+    stored = pipeline.ingest_all()
+    for name, count in stored.items():
+        print(f"  {name}: {count} chunks")
+    print(f"Stored {sum(stored.values())} chunks from {len(stored)} files.")
 
 
 def print_help() -> None:
     print(
         """
 Commands:
-  /ingest   Re-load data/sample.txt into pgvector
-  /stats    Show how many chunks are stored
-  /help     Show this help
-  /quit     Exit the REPL
+  /ingest              Re-load every .txt/.md file in data/ into pgvector
+  /clear               Delete ALL chunks from pgvector
+  /clear <filename>    Delete chunks for one source (e.g. /clear wata_software.txt)
+  /stats               Show how many chunks are stored
+  /help                Show this help
+  /quit                Exit the REPL
 
 Anything else is treated as a question against the knowledge base.
 """.strip()
@@ -133,6 +137,18 @@ def main() -> int:
                 run_ingest(pipeline)
             except Exception as exc:  # noqa: BLE001
                 print(f"Ingest failed: {exc}")
+            continue
+        if command.startswith("/clear"):
+            _, _, arg = raw.partition(" ")
+            source = arg.strip() or None
+            try:
+                deleted = pipeline.clear(source)
+                if source:
+                    print(f"Deleted {deleted} chunk(s) for source '{source}'.")
+                else:
+                    print(f"Deleted all chunks ({deleted}).")
+            except Exception as exc:  # noqa: BLE001
+                print(f"Clear failed: {exc}")
             continue
         if command == "/stats":
             try:

@@ -1,0 +1,39 @@
+# Week 3 Sample Knowledge Base — Internship RAG Demo
+
+## What is RAG?
+Retrieval-Augmented Generation (RAG) is a pattern that combines information retrieval
+with a large language model (LLM). Instead of asking the model to answer from memory
+alone, the system first retrieves relevant passages from a knowledge base, then passes
+those passages to the LLM as context. This reduces hallucinations and keeps answers
+grounded in your own documents.
+
+## Core RAG steps
+1. Load documents (for this demo: a plain text file).
+2. Chunk the text into overlapping pieces so each piece fits embedding and context limits.
+3. Embed each chunk into a vector using an embedding model.
+4. Store vectors in a vector database (here: PostgreSQL with the pgvector extension).
+5. On each question: embed the question, retrieve the top-k most similar chunks,
+   assemble a prompt with those chunks, and call the chat LLM to generate an answer.
+
+## Embeddings
+An embedding is a numeric vector that represents the meaning of a piece of text.
+Similar texts produce vectors that are close together in vector space, which enables
+similarity search (e.g., cosine distance). Common models include OpenAI
+text-embedding-3-small and open-source options such as nomic-embed-text via Ollama.
+
+## pgvector
+pgvector is a PostgreSQL extension that adds a vector column type and distance
+operators (cosine, L2, inner product). For internship projects it is convenient because
+metadata and embeddings live in the same database, which keeps the stack simple.
+
+## Prompt engineering basics
+Good RAG prompts usually:
+- Tell the model to answer only from the provided context.
+- Ask for a short, clear answer.
+- Instruct the model to say "I don't know" when the context is insufficient.
+- Optionally request citations or source snippets.
+
+## This internship week
+Week 3 focuses on AI foundations: LLM concepts, basic prompt engineering, embeddings,
+vector storage with pgvector, and a simple Python RAG demo that can answer questions
+about this document interactively.

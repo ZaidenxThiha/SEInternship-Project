@@ -67,6 +67,28 @@ class VectorStore:
                 cur.execute("DELETE FROM documents WHERE source = %s;", (source,))
             conn.commit()
 
+    def clear_all(self) -> int:
+        """Delete every stored chunk. Returns how many rows were removed."""
+        with self.connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT EXISTS (
+                        SELECT 1
+                        FROM information_schema.tables
+                        WHERE table_schema = 'public'
+                          AND table_name = 'documents'
+                    ) AS present;
+                    """
+                )
+                row = cur.fetchone()
+                if not row or not row["present"]:
+                    return 0
+                cur.execute("DELETE FROM documents;")
+                deleted = cur.rowcount if cur.rowcount is not None else 0
+            conn.commit()
+        return int(deleted)
+
     def upsert_chunks(
         self,
         source: str,

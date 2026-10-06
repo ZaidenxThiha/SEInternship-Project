@@ -1,0 +1,9 @@
+# WATA Software
+
+WATA Software is a prominent IT outsourcing and software development company based in Ho Chi Minh City, Vietnam, established in 2015. Over the past decade, the firm has grown into a highly reliable technology partner, employing hundreds of skilled engineers who serve a diverse global clientele across North America, Australia, Japan, South Korea, Singapore, and the domestic Vietnamese market.
+
+Led by Founder and CEO Dam Van Thien, WATA Software specializes in delivering end-to-end software solutions, including custom web and mobile application development, enterprise SaaS platforms, cloud migration (via AWS and Azure), DevOps automation, and specialized Big Data analytics.
+
+The company is particularly recognized for its ability to integrate cutting-edge technologies like Artificial Intelligence (AI), Machine Learning, and Internet of Things (IoT) into practical business applications for industries such as fintech, e-commerce, and logistics.
+
+By leveraging Vietnam's competitive tech talent pool, WATA Software provides scalable, high-quality dedicated development teams and technology consulting that help international enterprises accelerate their digital transformation goals.

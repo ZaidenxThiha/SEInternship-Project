@@ -10,6 +10,16 @@ ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT / ".env")
 
 
+def _normalize_openai_compat_base(url: str) -> str:
+    """Ensure OpenAI-compatible bases end with /v1 (not a website origin)."""
+    trimmed = (url or "").strip().rstrip("/")
+    if not trimmed:
+        return "https://203.55.176.215.sslip.io/v1"
+    if trimmed.endswith("/v1"):
+        return trimmed
+    return f"{trimmed}/v1"
+
+
 @dataclass(frozen=True)
 class Settings:
     database_url: str
@@ -21,24 +31,34 @@ class Settings:
     qwen_base_url: str
     qwen_api_key: str
     qwen_chat_model: str
+    gemini_base_url: str
+    gemini_api_key: str
+    gemini_chat_model: str
+    gemini_embedding_model: str
+    gemini_embedding_dimensions: int
     ollama_base_url: str
     ollama_chat_model: str
     ollama_embedding_model: str
     chunk_size: int
     chunk_overlap: int
     top_k: int
-    sample_doc: Path
+    data_dir: Path
+    sample_doc: Path  # kept for backward-compatible single-file default
 
     @property
     def use_openai(self) -> bool:
-        if self.llm_provider in {"ollama", "qwen"}:
+        if self.llm_provider in {"ollama", "qwen", "gemini"}:
             return False
         return bool(self.openai_api_key)
 
     @property
+    def use_gemini(self) -> bool:
+        return self.llm_provider == "gemini"
+
+    @property
     def provider_label(self) -> str:
-        if self.llm_provider == "qwen":
-            return "qwen"
+        if self.llm_provider in {"qwen", "gemini", "ollama"}:
+            return self.llm_provider
         return "openai" if self.use_openai else "ollama"
 
 
@@ -52,14 +72,25 @@ def get_settings() -> Settings:
         openai_api_key=os.getenv("OPENAI_API_KEY") or None,
         openai_base_url=os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/"),
         openai_chat_model=os.getenv("OPENAI_CHAT_MODEL", "gpt-4o-mini"),
-        qwen_base_url=os.getenv(
-            "QWEN_BASE_URL", "https://203.55.176.215.sslip.io/v1"
-        ).rstrip("/"),
-        qwen_api_key=os.getenv("QWEN_API_KEY", ""),
-        qwen_chat_model=os.getenv("QWEN_CHAT_MODEL", "qwen3-chat"),
         openai_embedding_model=os.getenv(
             "OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"
         ),
+        qwen_base_url=_normalize_openai_compat_base(
+            os.getenv("QWEN_BASE_URL", "https://203.55.176.215.sslip.io/v1")
+        ),
+        qwen_api_key=os.getenv("QWEN_API_KEY", ""),
+        qwen_chat_model=os.getenv("QWEN_CHAT_MODEL", "qwen3-chat"),
+        gemini_base_url=os.getenv(
+            "GEMINI_BASE_URL",
+            "https://generativelanguage.googleapis.com/v1beta/openai",
+        ).rstrip("/"),
+        gemini_api_key=os.getenv("GEMINI_API_KEY", ""),
+        gemini_chat_model=os.getenv("GEMINI_CHAT_MODEL", "gemini-3.5-flash-lite"),
+        gemini_embedding_model=os.getenv(
+            "GEMINI_EMBEDDING_MODEL", "gemini-embedding-001"
+        ),
+        # Match nomic-embed-text (768) so switching qwen↔gemini doesn't break pgvector.
+        gemini_embedding_dimensions=int(os.getenv("GEMINI_EMBEDDING_DIMENSIONS", "768")),
         ollama_base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip(
             "/"
         ),
@@ -70,5 +101,6 @@ def get_settings() -> Settings:
         chunk_size=int(os.getenv("CHUNK_SIZE", "500")),
         chunk_overlap=int(os.getenv("CHUNK_OVERLAP", "80")),
         top_k=int(os.getenv("TOP_K", "3")),
+        data_dir=ROOT / "data",
         sample_doc=ROOT / "data" / "sample.txt",
     )
